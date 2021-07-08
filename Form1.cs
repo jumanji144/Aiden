@@ -79,7 +79,7 @@ namespace Aiden
             protocols.Add(new ProtoMarvin());
 
             // Initialize a new instance of the SpeechSynthesizer.  
-            aiden.SelectVoice("Microsoft David Desktop");
+            aiden.SelectVoiceByHints(VoiceGender.Male);
 
                 Grammar g;
 
@@ -90,6 +90,8 @@ namespace Aiden
             commandtype.Add("stop");
             commandtype.Add("what is adam");
             commandtype.Add("status");
+            commandtype.Add("time");
+            commandtype.Add("date");
             foreach(Protocol proto in protocols)
             {
                 commandtype.Add("execute protocol " + proto.ident);
@@ -116,11 +118,30 @@ namespace Aiden
             _engine.SpeechDetected += new EventHandler<SpeechDetectedEventArgs>(onSpeechDetect);
 
             start.SetInputToDefaultAudioDevice();
-            start.LoadGrammarAsync(new Grammar(new GrammarBuilder(new Choices("wake up aidan", "wake up assistant"))));
+            start.LoadGrammarAsync(new Grammar(new GrammarBuilder(new Choices("hey aidan", "assistant", "hey assistant"))));
             start.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(onStartSpeechRec);
             start.RecognizeAsync(RecognizeMode.Multiple);
 
 
+        }
+
+        string ordinal_suffix_of(int i)
+        {
+            var j = i % 10;
+            var k = i % 100;
+            if (j == 1 && k != 11)
+            {
+                return i + "st";
+            }
+            if (j == 2 && k != 12)
+            {
+                return i + "nd";
+            }
+            if (j == 3 && k != 13)
+            {
+                return i + "rd";
+            }
+            return i + "th";
         }
 
         private void onSpeechRec(object sender, SpeechRecognizedEventArgs e)
@@ -184,13 +205,22 @@ namespace Aiden
 
                         break;
                     }
-                    
+                case "time":
+                    {
+                        aiden.SpeakAsync(DateTime.Now.ToString("h m tt"));
+                        break;
+                    }
+                case "date":
+                    {
+                        aiden.SpeakAsync(DateTime.Now.ToString("dddd") + " the " + ordinal_suffix_of(DateTime.Now.Day) + " of " + DateTime.Now.ToString("MMMM"));
+                        break;
+                    }
 
             }
 
             if (split[0] == "what" && split[1] == "is" && split[2] == "adam")
             {
-                aiden.Speak("a retard");
+                aiden.SpeakAsync("a retard");
             }
 
             if (!already)
@@ -215,7 +245,7 @@ namespace Aiden
 
             Console.WriteLine(e.Result.Text);
 
-            if(e.Result.Text == "wake up aidan" || e.Result.Text == "wake up assistant")
+            if(e.Result.Text == "hey aidan" || e.Result.Text == "assistant" || e.Result.Text == "hey assistant")
             {
 
                 start.RecognizeAsyncCancel();
