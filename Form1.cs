@@ -70,9 +70,10 @@ namespace Aiden
             this.Top = workingArea.Top + workingArea.Height - this.Size.Height;
             protocols.Add(new Proto1());
             protocols.Add(new Proto2());
-            protocols.Add(new ProtoChill());
             protocols.Add(new Proto56());
             protocols.Add(new Proto15());
+            protocols.Add(new ProtoChill());
+            protocols.Add(new ProtoMarvin());
 
             // Initialize a new instance of the SpeechSynthesizer.  
             aiden.SelectVoice("Microsoft David Desktop");
@@ -80,6 +81,7 @@ namespace Aiden
                 Grammar g;
 
             Choices commandtype = new Choices();
+            commandtype.Add("fuck off");
             commandtype.Add("search");
             commandtype.Add("stop");
             foreach(Protocol proto in protocols)
@@ -168,7 +170,21 @@ namespace Aiden
 
             }
 
-            if(!already)
+            if (split[0] == "fuck" && split[1] == "off")
+            {
+                FadeOut(this, fadeTime);
+                return;
+            }
+
+            if (split[0] == "what" && split[1] == "is" && split[2] == "adam")
+            {
+                aiden.Speak("a retard");
+
+                FadeOut(this, fadeTime);
+                return;
+            }
+
+            if (!already)
             FadeOut(this, fadeTime);
             _engine.RecognizeAsyncCancel();
             start.RecognizeAsync(RecognizeMode.Multiple);

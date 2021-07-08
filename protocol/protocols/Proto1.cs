@@ -16,7 +16,6 @@ namespace Aiden
 
         public override void execute(SpeechSynthesizer aiden, string[] args)
         {
-            aiden.Speak("WARNING: password required to activate Protocol one");
             string pass = args[0];
             if(pass == "apple")
             {
@@ -24,6 +23,9 @@ namespace Aiden
                 aiden.Speak(pass + " accepted ... Self destruct sequence initialized");
                 System.Windows.Forms.Application.ExitThread();
 
+            } else
+            {
+                aiden.Speak("WARNING: password required to activate Protocol one");
             }
         }
     }
