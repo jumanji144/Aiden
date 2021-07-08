@@ -82,8 +82,10 @@ namespace Aiden
 
             Choices commandtype = new Choices();
             commandtype.Add("fuck off");
+            commandtype.Add("shut up");
             commandtype.Add("search");
             commandtype.Add("stop");
+            commandtype.Add("what is adam");
             foreach(Protocol proto in protocols)
             {
                 commandtype.Add("execute protocol " + proto.ident);
@@ -162,6 +164,8 @@ namespace Aiden
                         Process.Start("firefox.exe", "duckduckgo.com/?q=" + speech.Substring("search ".Length).Replace(" ", "+"));
                         break;
                     }
+                case "fuck":
+                case "shut":
                 case "stop":
                     {
                         break;
@@ -170,17 +174,9 @@ namespace Aiden
 
             }
 
-            if (split[0] == "fuck" && split[1] == "off")
-            {
-                FadeOut(this, fadeTime);
-                return;
-            }
-
             if (split[0] == "what" && split[1] == "is" && split[2] == "adam")
             {
                 aiden.Speak("a retard");
-
-                FadeOut(this, fadeTime);
                 return;
             }
 
