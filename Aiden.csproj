@@ -55,6 +55,11 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\FileRef.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>FileRef.resx</DependentUpon>
+    </Compile>
     <Compile Include="protocol\Protocol.cs" />
     <Compile Include="protocol\protocols\Proto1.cs" />
     <Compile Include="protocol\protocols\Proto2.cs" />
@@ -64,6 +69,10 @@
     <Compile Include="protocol\protocols\ProtoMarvin.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\FileRef.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>FileRef.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -90,7 +99,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="DefaultCommands.txt" />
     <None Include="Resources\ezgif-6-a6025f8dec9e.gif" />
     <None Include="Resources\image_processing20200731-16405-74va4a.gif" />
     <None Include="Resources\tenor.gif" />

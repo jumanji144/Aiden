@@ -82,16 +82,8 @@ namespace Aiden
             aiden.SelectVoiceByHints(VoiceGender.Male);
 
                 Grammar g;
-
             Choices commandtype = new Choices();
-            commandtype.Add("fuck off");
-            commandtype.Add("shut up");
-            commandtype.Add("search");
-            commandtype.Add("stop");
-            commandtype.Add("what is adam");
-            commandtype.Add("status");
-            commandtype.Add("time");
-            commandtype.Add("date");
+            commandtype.Add(Properties.FileRef.commands.Split(','));
             foreach(Protocol proto in protocols)
             {
                 commandtype.Add("execute protocol " + proto.ident);
