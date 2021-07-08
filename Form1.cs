@@ -61,6 +61,9 @@ namespace Aiden
             FadeOut(this, fadeTime);
         }
 
+        string[] appNames = { "discord", "firefox", "chrome", "settings" };
+
+
         private void Form1_Load(object sender, EventArgs e)
         {
             this.TopMost = true;
@@ -86,9 +89,14 @@ namespace Aiden
             commandtype.Add("search");
             commandtype.Add("stop");
             commandtype.Add("what is adam");
+            commandtype.Add("status");
             foreach(Protocol proto in protocols)
             {
                 commandtype.Add("execute protocol " + proto.ident);
+            }
+            foreach(string app in appNames)
+            {
+                commandtype.Add("open " + app);
             }
 
             SemanticResultKey srkComtype = new SemanticResultKey("comtype", commandtype.ToGrammarBuilder());
@@ -170,6 +178,12 @@ namespace Aiden
                     {
                         break;
                     }
+
+                case "open":
+                    {
+
+                        break;
+                    }
                     
 
             }
@@ -177,7 +191,6 @@ namespace Aiden
             if (split[0] == "what" && split[1] == "is" && split[2] == "adam")
             {
                 aiden.Speak("a retard");
-                return;
             }
 
             if (!already)
