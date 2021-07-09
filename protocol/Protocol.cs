@@ -17,7 +17,7 @@ namespace Aiden
 
         public string ident { get; set; }
 
-        public abstract void execute(SpeechSynthesizer aiden, string[] args);
+        public abstract void execute(Assistant aiden, string[] args);
 
     }
 }

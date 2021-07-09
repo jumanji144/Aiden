@@ -13,9 +13,10 @@ namespace Aiden
 
         public ProtoMarvin() : base("marvin") { }
 
-        public override void execute(SpeechSynthesizer aiden, string[] args)
+        public override void execute(Assistant aiden, string[] args)
         {
             Process.Start("firefox.exe", "https://www.youtube.com/watch?v=NkdpBWzb2hw");
+            aiden.Disable();
         }
     }
 }

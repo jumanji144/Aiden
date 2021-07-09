@@ -13,7 +13,7 @@ namespace Aiden
 
         public Proto15() : base("15") { }
 
-        public override void execute(SpeechSynthesizer aiden, string[] args)
+        public override void execute(Assistant aiden, string[] args)
         {
             Process.Start(@"cmd.exe", @"/c shutdown /s /t 15 /c ""The final net""");
             aiden.Speak("15");
@@ -31,6 +31,7 @@ namespace Aiden
             aiden.Speak("3");
             aiden.Speak("2");
             aiden.Speak("1");
+            aiden.Disable();
         }
 
     }

@@ -13,9 +13,10 @@ namespace Aiden
 
         public Proto56() : base("56") { }
 
-        public override void execute(SpeechSynthesizer aiden, string[] args)
+        public override void execute(Assistant aiden, string[] args)
         {
             Process.Start(@"C:\Program Files (x86)\Ubisoft\Ubisoft Game Launcher\upc.exe");
+            aiden.Disable();
         }
     }
 }

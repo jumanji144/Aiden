@@ -13,9 +13,10 @@ namespace Aiden
 
         public ProtoChill() : base("chill") { }
 
-        public override void execute(SpeechSynthesizer aiden, string[] args)
+        public override void execute(Assistant aiden, string[] args)
         {
             Process.Start("firefox.exe", "https://www.youtube.com/watch?v=P5ByrJVgaeU");
+            aiden.Disable();
         }
     }
 }
