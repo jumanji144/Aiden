@@ -10,7 +10,6 @@ using System.Windows.Forms;
 using System.Speech;
 using System.Speech.Recognition;
 using System.Speech.Synthesis;
-using System.IO;
 using System.Speech.AudioFormat;
 using System.Diagnostics;
 using System.Threading;
@@ -61,6 +60,97 @@ namespace Aiden
             FadeOut(this, fadeTime);
         }
 
+        private Dictionary<string, string> pathCache = new Dictionary<string, string>();
+
+        public void ExecuteCommandAsync(object command)
+        {
+            new Thread(() =>
+            {
+                ExecuteCommandSync(command);
+            }).Start();
+        }
+        public string ExecuteCommandSync(object command)
+        {
+            try
+            {
+                // create the ProcessStartInfo using "cmd" as the program to be run,
+                // and "/c " as the parameters.
+                // Incidentally, /c tells cmd that we want it to execute the command that follows,
+                // and then exit.
+                System.Diagnostics.ProcessStartInfo procStartInfo =
+                    new System.Diagnostics.ProcessStartInfo("cmd", "/c " + command);
+
+                // The following commands are needed to redirect the standard output.
+                // This means that it will be redirected to the Process.StandardOutput StreamReader.
+                procStartInfo.RedirectStandardOutput = true;
+                procStartInfo.UseShellExecute = false;
+                // Do not create the black window.
+                procStartInfo.CreateNoWindow = true;
+                // Now we create a process, assign its ProcessStartInfo and start it
+                System.Diagnostics.Process proc = new System.Diagnostics.Process();
+                proc.StartInfo = procStartInfo;
+                proc.Start();
+                // Get the output into a string
+                string result = proc.StandardOutput.ReadToEnd();
+                // Display the command output.
+                return result;
+            }
+            catch (Exception objException)
+            {
+                // Log the exception
+            }
+            return "";
+        }
+
+        private string findAppPath(string basepath, string appname)
+        {
+
+            string res = ExecuteCommandSync("where /R " + basepath + " " + appname);
+
+            return res.Split('\n')[0];
+
+        }
+
+        private void FindPathAndExecute(string basepath, string appname)
+        {
+            string path = "";
+
+            if (!pathCache.ContainsKey(appname))
+            {
+                path = findAppPath(@"%HOMEPATH%\AppData\Local", "discord");
+                pathCache.Add(appname, path);
+            }
+            else
+                pathCache.TryGetValue(appname, out path);
+            if (path != "INFO: Could not find files for the given pattern(s).")
+            {
+
+                ExecuteCommandAsync(path);
+            }else
+            {
+                aiden.SpeakAsync("Cant find " + appname);
+            }
+        }
+
+        private void FindPathAndCache(string basepath, string appname)
+        {
+            new Thread(() =>
+            {
+                string path = "";
+                 if (!pathCache.ContainsKey(appname))
+                {
+                    path = findAppPath(@"%HOMEPATH%\AppData\Local", "discord");
+                    pathCache.Add(appname, path);
+                }
+                Console.WriteLine("Finished Cachching path of " + appname);
+            }).Start();
+        }
+
+        public void CacheAppPaths()
+        {
+            FindPathAndCache("%HOMEPATH%/AppData/Local", "discord");
+        }
+
         string[] appNames = { "discord", "firefox", "chrome", "settings" };
 
 
@@ -77,6 +167,8 @@ namespace Aiden
             protocols.Add(new Proto15());
             protocols.Add(new ProtoChill());
             protocols.Add(new ProtoMarvin());
+
+            CacheAppPaths();
 
             // Initialize a new instance of the SpeechSynthesizer.  
             aiden.SelectVoiceByHints(VoiceGender.Male);
@@ -194,7 +286,17 @@ namespace Aiden
 
                 case "open":
                     {
+                        switch(split[1])
+                        {
 
+                            case "discord":
+                                {
+
+                                    FindPathAndExecute(@"%HOMEPATH%\AppData\Local", "discord");
+                                    break;
+                                }
+
+                        }
                         break;
                     }
                 case "time":
