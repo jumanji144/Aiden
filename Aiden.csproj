@@ -67,6 +67,8 @@
     <Compile Include="protocol\protocols\Proto56.cs" />
     <Compile Include="protocol\protocols\ProtoChill.cs" />
     <Compile Include="protocol\protocols\ProtoMarvin.cs" />
+    <Compile Include="utils\StringUtil.cs" />
+    <Compile Include="utils\SysUtils.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

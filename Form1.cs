@@ -13,6 +13,7 @@ using System.Speech.Synthesis;
 using System.Speech.AudioFormat;
 using System.Diagnostics;
 using System.Threading;
+using System.Runtime.InteropServices;
 
 namespace Aiden
 {
@@ -42,6 +43,8 @@ namespace Aiden
         }
 
         SpeechRecognitionEngine _engine = new SpeechRecognitionEngine();
+        SpeechRecognitionEngine _callbackListener = new SpeechRecognitionEngine();
+        Action<string> currentCallback;
         SpeechSynthesizer aiden = new SpeechSynthesizer();
         SpeechRecognitionEngine start = new SpeechRecognitionEngine();
         Random rnd = new Random();
@@ -53,63 +56,14 @@ namespace Aiden
             InitializeComponent();
         }
 
-        private delegate void SafeCallDelegate();
+        public delegate void SafeCallDelegate();
 
         private void DisableGIF()
         {
-            FadeOut(this, fadeTime);
+            Disable();
         }
 
         private Dictionary<string, string> pathCache = new Dictionary<string, string>();
-
-        public void ExecuteCommandAsync(object command)
-        {
-            new Thread(() =>
-            {
-                ExecuteCommandSync(command);
-            }).Start();
-        }
-        public string ExecuteCommandSync(object command)
-        {
-            try
-            {
-                // create the ProcessStartInfo using "cmd" as the program to be run,
-                // and "/c " as the parameters.
-                // Incidentally, /c tells cmd that we want it to execute the command that follows,
-                // and then exit.
-                System.Diagnostics.ProcessStartInfo procStartInfo =
-                    new System.Diagnostics.ProcessStartInfo("cmd", "/c " + command);
-
-                // The following commands are needed to redirect the standard output.
-                // This means that it will be redirected to the Process.StandardOutput StreamReader.
-                procStartInfo.RedirectStandardOutput = true;
-                procStartInfo.UseShellExecute = false;
-                // Do not create the black window.
-                procStartInfo.CreateNoWindow = true;
-                // Now we create a process, assign its ProcessStartInfo and start it
-                System.Diagnostics.Process proc = new System.Diagnostics.Process();
-                proc.StartInfo = procStartInfo;
-                proc.Start();
-                // Get the output into a string
-                string result = proc.StandardOutput.ReadToEnd();
-                // Display the command output.
-                return result;
-            }
-            catch (Exception objException)
-            {
-                // Log the exception
-            }
-            return "";
-        }
-
-        private string findAppPath(string basepath, string appname)
-        {
-
-            string res = ExecuteCommandSync("where /R " + basepath + " " + appname);
-
-            return res.Split('\n')[0];
-
-        }
 
         private void FindPathAndExecute(string basepath, string appname)
         {
@@ -117,7 +71,7 @@ namespace Aiden
 
             if (!pathCache.ContainsKey(appname))
             {
-                path = findAppPath(@"%HOMEPATH%\AppData\Local", "discord");
+                path = SysUtils.FindAppPath(@"%HOMEPATH%\AppData\Local", "discord");
                 pathCache.Add(appname, path);
             }
             else
@@ -125,7 +79,7 @@ namespace Aiden
             if (path != "INFO: Could not find files for the given pattern(s).")
             {
 
-                ExecuteCommandAsync(path);
+                SysUtils.ExecuteCommandAsync(path);
             }else
             {
                 aiden.SpeakAsync("Cant find " + appname);
@@ -139,7 +93,7 @@ namespace Aiden
                 string path = "";
                  if (!pathCache.ContainsKey(appname))
                 {
-                    path = findAppPath(@"%HOMEPATH%\AppData\Local", "discord");
+                    path = SysUtils.FindAppPath(@"%HOMEPATH%\AppData\Local", "discord");
                     pathCache.Add(appname, path);
                 }
                 Console.WriteLine("Finished Cachching path of " + appname);
@@ -151,7 +105,17 @@ namespace Aiden
             FindPathAndCache("%HOMEPATH%/AppData/Local", "discord");
         }
 
-        string[] appNames = { "discord", "firefox", "chrome", "settings" };
+        public void Disable()
+        {
+            this.Invoke(new SafeCallDelegate(DisableSafe));
+        }
+
+        public void DisableSafe()
+        {
+            FadeOut(this, fadeTime);
+        }
+
+        string[] appNames = Properties.FileRef.appNames.Split(',');
 
 
         private void Form1_Load(object sender, EventArgs e)
@@ -193,40 +157,50 @@ namespace Aiden
             builder.Append(srkComtype);
             builder.AppendDictation();
 
+            GrammarBuilder english = new GrammarBuilder();
+            english.Culture = System.Globalization.CultureInfo.CreateSpecificCulture("en-GB");
+            english.AppendDictation();
+
 
             g = new Grammar(builder);
 
             _engine.SetInputToDefaultAudioDevice();
             _engine.LoadGrammarAsync(g);
             _engine.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(onSpeechRec);
-            _engine.SpeechDetected += new EventHandler<SpeechDetectedEventArgs>(onSpeechDetect);
 
             start.SetInputToDefaultAudioDevice();
-            start.LoadGrammarAsync(new Grammar(new GrammarBuilder(new Choices("hey aidan", "assistant", "hey assistant"))));
+            start.LoadGrammarAsync(new Grammar(new GrammarBuilder(new Choices(Properties.FileRef.wakeUp.Split(',')))));
             start.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(onStartSpeechRec);
             start.RecognizeAsync(RecognizeMode.Multiple);
 
+            _callbackListener.SetInputToDefaultAudioDevice();
+            _callbackListener.LoadGrammarAsync(new Grammar(english));
+            _callbackListener.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(callbackAccept);
+
 
         }
 
-        string ordinal_suffix_of(int i)
+        private void callbackAccept(object sender, SpeechRecognizedEventArgs e)
         {
-            var j = i % 10;
-            var k = i % 100;
-            if (j == 1 && k != 11)
+            if(currentCallback != null)
             {
-                return i + "st";
+                new Thread(() =>
+                {
+                    currentCallback.Invoke(e.Result.Text);
+                    currentCallback = null;
+                }).Start();
             }
-            if (j == 2 && k != 12)
-            {
-                return i + "nd";
-            }
-            if (j == 3 && k != 13)
-            {
-                return i + "rd";
-            }
-            return i + "th";
+            _callbackListener.RecognizeAsyncCancel();
         }
+
+        public void AwaitSpeechResponse(Action<string> callback)
+        {
+            currentCallback = callback;
+            _callbackListener.RecognizeAsync();
+        }
+
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern bool LockWorkStation();
 
         private void onSpeechRec(object sender, SpeechRecognizedEventArgs e)
         {
@@ -258,11 +232,10 @@ namespace Aiden
                                     {
                                         if(proto.ident == name)
                                         {
+                                            already = true;
                                             new Thread(() =>
                                             {
-                                                proto.execute(aiden, split.Skip(3).ToArray());
-                                                this.Invoke(new SafeCallDelegate(DisableGIF), new object[] { });
-                                                already = true;
+                                                proto.execute(this, split.Skip(3).ToArray());
                                             }).Start();
                                             break;
                                         }
@@ -306,7 +279,41 @@ namespace Aiden
                     }
                 case "date":
                     {
-                        aiden.SpeakAsync(DateTime.Now.ToString("dddd") + " the " + ordinal_suffix_of(DateTime.Now.Day) + " of " + DateTime.Now.ToString("MMMM"));
+                        aiden.SpeakAsync(DateTime.Now.ToString("dddd") + " the " + StringUtil.ordinal_suffix_of(DateTime.Now.Day) + " of " + DateTime.Now.ToString("MMMM"));
+                        break;
+                    }
+                case "system":
+                    {
+                        switch(split[1])
+                        {
+                            case "lock":
+                                {
+                                    bool result = LockWorkStation();
+
+                                    if (result == false)
+                                    {
+                                        // An error occured
+                                       aiden.SpeakAsync("Error code: " + Marshal.GetLastWin32Error().ToString());
+                                    }
+                                    break;
+                                }
+                            case "sleep":
+                                {
+                                    bool retVal = Application.SetSuspendState(PowerState.Suspend, false, false);
+
+                                    if (retVal == false)
+                                        aiden.SpeakAsync("Could not suspend the system.");
+                                    break;
+                                }
+                            case "hibernate":
+                                {
+                                    bool retVal = Application.SetSuspendState(PowerState.Hibernate, false, false);
+
+                                    if (retVal == false)
+                                        aiden.SpeakAsync("Could not hibernate the system.");
+                                    break;
+                                }
+                        }
                         break;
                     }
 
@@ -318,7 +325,7 @@ namespace Aiden
             }
 
             if (!already)
-            FadeOut(this, fadeTime);
+                Disable();
             _engine.RecognizeAsyncCancel();
             start.RecognizeAsync(RecognizeMode.Multiple);
         }
@@ -330,8 +337,14 @@ namespace Aiden
 
         }
 
-        private void onSpeechDetect(object sender, SpeechDetectedEventArgs e)
+        public void Speak(string text)
         {
+            aiden.Speak(text);
+        }
+
+        public void SpeakAsync(string text)
+        {
+            aiden.SpeakAsync(text);
         }
 
         private void onStartSpeechRec(object sender, SpeechRecognizedEventArgs e)
@@ -339,11 +352,10 @@ namespace Aiden
 
             Console.WriteLine(e.Result.Text);
 
-            if(e.Result.Text == "hey aidan" || e.Result.Text == "assistant" || e.Result.Text == "hey assistant")
+            if(Properties.FileRef.wakeUp.Split(',').Contains(e.Result.Text))
             {
 
                 start.RecognizeAsyncCancel();
-                //search foraiden.SpeakAsync("I am here");
                 _engine.RecognizeAsync(RecognizeMode.Multiple);
                 FadeIn(this, fadeTime);
 
