@@ -1,14 +1,67 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Windows.Interop;
 
 namespace Aiden
 {
     public class SysUtils
     {
+
+        private const int APPCOMMAND_VOLUME_MUTE = 0x80000;
+        private const int APPCOMMAND_VOLUME_UP = 0xA0000;
+        private const int APPCOMMAND_VOLUME_DOWN = 0x90000;
+        private const int WM_APPCOMMAND = 0x319;
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr SendMessageW(IntPtr hWnd, int Msg,
+            IntPtr wParam, IntPtr lParam);
+
+        public static void Mute(Form form)
+        {
+            SendMessageW(form.Handle, WM_APPCOMMAND, form.Handle,
+                (IntPtr)APPCOMMAND_VOLUME_MUTE);
+        }
+
+        public static void VolDown(Form form)
+        {
+            SendMessageW(form.Handle, WM_APPCOMMAND, form.Handle,
+                (IntPtr)APPCOMMAND_VOLUME_DOWN);
+        }
+
+        public static void VolUp(Form form)
+        {
+            SendMessageW(form.Handle, WM_APPCOMMAND, form.Handle,
+                (IntPtr)APPCOMMAND_VOLUME_UP);
+        }
+
+        public enum VolumeUnit
+        {
+            //Perform volume action in decibels</param>
+            Decibel,
+            //Perform volume action in scalar
+            Scalar
+        }
+
+        /// <summary>
+        /// Gets the current volume
+        /// </summary>
+        /// <param name="vUnit">The unit to report the current volume in</param>
+        [DllImport("SysVolUtil.dll")]
+        public static extern float GetSystemVolume(VolumeUnit vUnit);
+        /// <summary>
+        /// sets the current volume
+        /// </summary>
+        /// <param name="newVolume">The new volume to set</param>
+        /// <param name="vUnit">The unit to set the current volume in</param>
+        [DllImport("SysVolUtil.dll")]
+        public static extern void SetSystemVolume(double newVolume, VolumeUnit vUnit);
+
 
         public static void ExecuteCommandAsync(object command)
         {
@@ -57,6 +110,14 @@ namespace Aiden
 
             return res.Split('\n')[0];
 
+        }
+
+        public static IEnumerable<T> CreateAllInstancesOf<T>()
+        {
+            return typeof(SysUtils).Assembly.GetTypes()
+                .Where(t => typeof(T).IsAssignableFrom(t))
+                .Where(t => !t.IsAbstract && t.IsClass)
+                .Select(t => (T)Activator.CreateInstance(t));
         }
 
     }

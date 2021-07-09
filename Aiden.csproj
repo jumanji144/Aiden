@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Speech" />
@@ -104,6 +105,9 @@
     <None Include="Resources\ezgif-6-a6025f8dec9e.gif" />
     <None Include="Resources\image_processing20200731-16405-74va4a.gif" />
     <None Include="Resources\tenor.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="SysVolUtil.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

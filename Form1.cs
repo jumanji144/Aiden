@@ -120,6 +120,7 @@ namespace Aiden
 
         private void Form1_Load(object sender, EventArgs e)
         {
+
             this.TopMost = true;
             this.Opacity = 0;
             Rectangle workingArea = Screen.PrimaryScreen.WorkingArea;
@@ -139,7 +140,6 @@ namespace Aiden
 
                 Grammar g;
             Choices commandtype = new Choices();
-            commandtype.Add(Properties.FileRef.commands.Split(','));
             foreach(Protocol proto in protocols)
             {
                 commandtype.Add("execute protocol " + proto.ident);
@@ -148,6 +148,7 @@ namespace Aiden
             {
                 commandtype.Add("open " + app);
             }
+            commandtype.Add(Properties.FileRef.commands.Split(','));
 
             SemanticResultKey srkComtype = new SemanticResultKey("comtype", commandtype.ToGrammarBuilder());
 
@@ -314,6 +315,25 @@ namespace Aiden
                                     break;
                                 }
                         }
+                        break;
+                    }
+                case "volume":
+                    {
+
+                        if(split[1] == "mute")
+                        {
+
+                            SysUtils.Mute(this);
+                            break;
+
+                        }
+
+                        double d = ((double)StringUtil.convertLitteralNumberToNumber(speech.Substring("volume ".Length))) / 100;
+
+                        SysUtils.SetSystemVolume(d, SysUtils.VolumeUnit.Scalar);
+
+                        Console.WriteLine(d);
+
                         break;
                     }
 

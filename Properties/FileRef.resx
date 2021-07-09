@@ -121,7 +121,7 @@
     <value>discord,firefox,chrome,settings</value>
   </data>
   <data name="commands" xml:space="preserve">
-    <value>status,date,time,what is adam,search,stop,shut up,fuck off,system lock,system sleep,system hibernate</value>
+    <value>status,date,time,what is adam,search,stop,shut up,fuck off,system lock,system sleep,system hibernate,volume,volume mute</value>
   </data>
   <data name="proto1pass" xml:space="preserve">
     <value>apple</value>

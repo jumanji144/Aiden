@@ -70,7 +70,7 @@ namespace Aiden.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die status,date,time,what is adam,search,stop,shut up,fuck off,system lock,system sleep,system hibernate ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die status,date,time,what is adam,search,stop,shut up,fuck off,system lock,system sleep,system hibernate,volume,volume mute ähnelt.
         /// </summary>
         internal static string commands {
             get {
