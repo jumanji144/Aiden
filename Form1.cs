@@ -171,7 +171,7 @@ namespace Aiden
             CacheAppPaths();
 
             // Initialize a new instance of the SpeechSynthesizer.  
-            aiden.SelectVoiceByHints(VoiceGender.Male);
+            aiden.SelectVoiceByHints(VoiceGender.Female);
 
                 Grammar g;
             Choices commandtype = new Choices();
