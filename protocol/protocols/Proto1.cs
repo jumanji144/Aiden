@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Speech;
 using System.Speech.Synthesis;
 using System.Threading;
+using static Aiden.Assistant;
 
 namespace Aiden
 {
@@ -14,19 +15,25 @@ namespace Aiden
 
         public Proto1()  : base("1") { }
 
-        public override void execute(SpeechSynthesizer aiden, string[] args)
+        public override void execute(Assistant aiden, string[] args)
         {
-            string pass = args[0];
-            if(pass == "apple")
+            aiden.Speak("A password is required for protocol 1");
+            aiden.AwaitSpeechResponse((res) =>
             {
+                if (res == Properties.FileRef.proto1pass)
+                {
 
-                aiden.Speak(pass + " accepted ... Self destruct sequence initialized");
-                System.Windows.Forms.Application.ExitThread();
+                    aiden.Speak(res + " accepted ... Self destruct sequence initialized");
+                    aiden.Invoke(new SafeCallDelegate(System.Windows.Forms.Application.ExitThread));
+                    return;
 
-            } else
-            {
-                aiden.Speak("WARNING: password required to activate Protocol one");
-            }
+                }
+                else
+                {
+                    aiden.Speak("Wrong password... Aborting protocol 1");
+                }
+                aiden.Disable();
+            });
         }
     }
 }
