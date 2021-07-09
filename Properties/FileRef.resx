@@ -117,7 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="appNames" xml:space="preserve">
+    <value>discord,firefox,chrome,settings</value>
+  </data>
   <data name="commands" xml:space="preserve">
-    <value>status,date,time,what is adam,search,stop,shut up,fuck off</value>
+    <value>status,date,time,what is adam,search,stop,shut up,fuck off,system lock,system sleep,system hibernate</value>
+  </data>
+  <data name="proto1pass" xml:space="preserve">
+    <value>apple</value>
+  </data>
+  <data name="wakeUp" xml:space="preserve">
+    <value>hey aiden,assistant,hey assistant</value>
   </data>
 </root>

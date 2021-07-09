@@ -61,11 +61,38 @@ namespace Aiden.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die status,date,time,what is adam,search,stop,shut up,fuck off ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die discord,firefox,chrome,settings ähnelt.
+        /// </summary>
+        internal static string appNames {
+            get {
+                return ResourceManager.GetString("appNames", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die status,date,time,what is adam,search,stop,shut up,fuck off,system lock,system sleep,system hibernate ähnelt.
         /// </summary>
         internal static string commands {
             get {
                 return ResourceManager.GetString("commands", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die apple ähnelt.
+        /// </summary>
+        internal static string proto1pass {
+            get {
+                return ResourceManager.GetString("proto1pass", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die hey aiden,assistant,hey assistant ähnelt.
+        /// </summary>
+        internal static string wakeUp {
+            get {
+                return ResourceManager.GetString("wakeUp", resourceCulture);
             }
         }
     }
